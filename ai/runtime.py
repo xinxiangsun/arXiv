@@ -27,7 +27,10 @@ def build_chat_openai_kwargs(model_name: str, base_url: str, api_key: str) -> di
         "api_key": api_key,
     }
     hostname = urlparse(base_url).hostname or ""
-    if hostname.endswith("volces.com"):
+    # Forced tool calls used by structured output require non-thinking mode.
+    if (hostname.endswith("volces.com")
+            or hostname == "api.deepseek.com"
+            or model_name.lower().startswith(("deepseek-", "deepseek/"))):
         kwargs["extra_body"] = {"thinking": {"type": "disabled"}}
     return kwargs
 

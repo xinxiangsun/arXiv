@@ -30,6 +30,20 @@ class BuildChatOpenAIKwargsTests(unittest.TestCase):
             kwargs["extra_body"],
         )
 
+    def test_deepseek_structured_output_disables_thinking(self):
+        """DeepSeek thinking mode rejects the named tool forced by LangChain."""
+        for model_name, base_url in (
+            ("deepseek-flash", "https://api.deepseek.com/v1"),
+            ("deepseek-v4-pro", "https://api.deepseek.com"),
+            ("deepseek-flash", "https://gateway.example.com/v1"),
+            ("provider-model-id", "https://api.deepseek.com/v1"),
+        ):
+            with self.subTest(model=model_name, base_url=base_url):
+                kwargs = build_chat_openai_kwargs(model_name, base_url, "test-key")
+                self.assertEqual(
+                    {"thinking": {"type": "disabled"}}, kwargs["extra_body"]
+                )
+
     def test_processing_error_is_reported_after_a_batch(self):
         """Catches swallowing authentication failures and publishing fallback summaries."""
         with self.assertRaisesRegex(RuntimeError, r"2 paper\(s\) failed"):
